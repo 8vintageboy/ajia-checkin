@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#17365d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="區域開發">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>阿嘉｜區域開發打卡 2.4</title>
+<style>
+:root{--navy:#17365d;--blue:#eaf2f8;--bg:#f4f6f9;--ink:#17212b;--muted:#687586;--line:#e1e6ed;--green:#16794a;--red:#a22;--gold:#a65a00}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;color:var(--ink);padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+header{background:var(--navy);color:#fff;padding:calc(17px + env(safe-area-inset-top)) 17px 16px;position:relative;z-index:2}h1{font-size:20px;margin:0 0 4px}header p{margin:0;font-size:12px;opacity:.85}
+main{max-width:680px;margin:auto;padding:13px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 2px 8px #12233a08}
+h2{font-size:15px;margin:0 0 11px}.sub,.muted{font-size:11px;color:var(--muted);font-weight:400}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--blue);border-radius:12px;padding:10px 5px;text-align:center}.stat b{display:block;font-size:23px;color:var(--navy)}.stat span{font-size:11px;color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:7px}.pill,button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}.pill{display:inline-flex;align-items:center;justify-content:center;appearance:none;-webkit-appearance:none;touch-action:manipulation;user-select:none;-webkit-user-select:none;pointer-events:auto;position:relative;z-index:1;border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 12px;border-radius:11px;font-size:13px;min-height:44px}.pill.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.field{margin-top:12px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:11px;padding:14px;font:inherit;font-size:16px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none;scroll-margin-top:18px}input:focus,textarea:focus,select:focus{outline:2px solid #8aa9c5;outline-offset:1px}textarea{min-height:66px;resize:vertical}
+.primary{width:100%;border:0;background:var(--green);color:#fff;padding:15px;border-radius:13px;font-size:16px;font-weight:750}.secondary{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 11px;font-size:12px;color:var(--ink)}.secondary:active,.pill:active{opacity:.75}.secondary:disabled{opacity:.5}.danger{color:var(--red)}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button{min-height:42px}
+.record{border-top:1px solid var(--line);padding:12px 0}.record:first-child{border-top:0}.record-head{display:flex;gap:7px;align-items:flex-start;justify-content:space-between}.record strong{font-size:14px;line-height:1.45}.tag{display:inline-block;border-radius:30px;padding:3px 8px;font-size:10px;background:#edf1f5;white-space:nowrap}.record small{display:block;color:var(--muted);margin-top:5px;line-height:1.6;font-size:11px;white-space:pre-wrap}.record-actions{display:flex;gap:6px;margin-top:8px}.empty{color:var(--muted);font-size:13px;text-align:center;padding:18px}.notice{font-size:11px;color:var(--muted);line-height:1.6;margin:10px 2px}.region-grid{display:grid;grid-template-columns:1fr auto;gap:7px 10px;font-size:12px}.bar{height:7px;background:#edf1f5;border-radius:9px;overflow:hidden;margin-top:4px}.bar i{display:block;height:100%;background:#49769d;border-radius:9px}.region-row{display:contents}.hidden{display:none!important}.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.toolbar input,.toolbar select{min-width:0}.section-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.counter{font-size:11px;color:var(--muted)}
+@media(min-width:560px){main{padding:18px}.pill{font-size:14px}.toolbar{grid-template-columns:1.5fr 1fr}}
+
+/* 同步狀態列 */
+.sync{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sync .st{font-size:14px;font-weight:700;line-height:1.4;min-width:0}
+.sync .st small{display:block;font-weight:400;font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5;word-break:break-all}
+.sync.ok{border-color:#b9dfca;background:#f3fbf6}.sync.ok .st{color:var(--green)}
+.sync.warn{border-color:#f0d9a8;background:#fff8e8}.sync.warn .st{color:var(--gold)}
+.sync.bad{border-color:#e8b9b9;background:#fff3f3}.sync.bad .st{color:var(--red)}
+.sync button{flex:none;min-height:44px;padding:9px 14px;font-size:13px}
+details summary{font-weight:700;font-size:15px;cursor:pointer;min-height:24px}
+.msg{font-size:12px;line-height:1.6;margin-top:10px;color:var(--muted);white-space:pre-wrap;word-break:break-all}.msg.bad{color:var(--red)}.msg.ok{color:var(--green)}
+
+.delete-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.42);display:flex;align-items:center;justify-content:center;padding:22px}
+.delete-dialog{width:min(100%,340px);background:#fff;border-radius:18px;padding:22px;box-shadow:0 12px 40px rgba(0,0,0,.22)}
+.delete-dialog h3{margin:0 0 10px;font-size:19px}
+.delete-dialog p{margin:0 0 20px;color:#667085;line-height:1.6}
+.delete-dialog-actions{display:flex;gap:10px}
+.delete-dialog-actions button{flex:1;min-height:48px;border-radius:12px;font-size:16px}
+.delete-cancel{background:#f2f4f7;color:#344054;border:1px solid #d0d5dd}
+.delete-confirm{background:#c62828;color:#fff;border:1px solid #c62828}
+</style></head><body>
+<header><h1>阿嘉｜區域開發打卡 2.4</h1><p>大家房屋・太保南新店｜離線可記錄・自動同步 Google Sheet</p></header>
+<main>
+<section class="panel hidden" id="installTip" style="background:#fff8e8;border-color:#f0d9a8"><div class="section-top"><p style="margin:0;font-size:12px;line-height:1.6">📲 iPhone：用 Safari 開啟後，點下方「分享」→「加入主畫面」，之後從主畫面圖示開啟，沒訊號也能用。</p><button class="secondary" id="closeTip" type="button">知道了</button></div></section>
+
+<section class="panel sync warn" id="syncBox"><div class="st"><span id="syncTitle">同步狀態</span><small id="syncSub"></small></div><button class="secondary" id="syncBtn" type="button">立即同步</button></section>
+
+<section class="panel"><div class="stats"><div class="stat"><b id="todayCount">0</b><span>今日開發</span></div><div class="stat"><b id="leadCount">0</b><span>有機會屋主</span></div><div class="stat"><b id="allCount">0</b><span>累積紀錄</span></div></div></section>
+<form id="entryForm">
+<section class="panel"><h2>① 開發區域</h2><div class="pills" data-name="area"><button type="button" class="pill active">麻魚寮</button><button type="button" class="pill">縣府特區</button><button type="button" class="pill">高鐵特區</button><button type="button" class="pill">新港市區</button><button type="button" class="pill">朴子市區</button><button type="button" class="pill">水上</button><button type="button" class="pill">民雄</button><button type="button" class="pill">嘉義市</button><button type="button" class="pill">其他</button></div></section>
+<section class="panel"><h2>② 物件類型</h2><div class="pills" data-name="kind"><button type="button" class="pill active">透天</button><button type="button" class="pill">大樓</button><button type="button" class="pill">公寓</button><button type="button" class="pill">土地</button><button type="button" class="pill">廠房</button><button type="button" class="pill">店面</button><button type="button" class="pill">其他</button></div><div class="field"><label>地址／社區（可使用 iPhone 語音輸入）</label><input id="address" type="text" inputmode="text" enterkeyhint="done" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="例如：太保市三合路"></div></section>
+<section class="panel"><h2>③ 接觸方式</h2><div class="pills" data-name="method"><button type="button" class="pill active">陌生拜訪</button><button type="button" class="pill">電話開發</button><button type="button" class="pill">鄰居介紹</button><button type="button" class="pill">社區拜訪</button><button type="button" class="pill">開發信</button><button type="button" class="pill">轉介紹</button></div></section>
+<section class="panel"><h2>④ 開發結果</h2><div class="pills" data-name="result"><button type="button" class="pill active">未接觸成功</button><button type="button" class="pill">有出售意願</button><button type="button" class="pill">有出租需求</button><button type="button" class="pill">未來可能出售</button><button type="button" class="pill">目前無需求</button><button type="button" class="pill">拒絕接觸</button><button type="button" class="pill">已委託</button></div></section>
+<section class="panel"><h2>⑤ 追蹤時間</h2><div class="pills" data-name="follow"><button type="button" class="pill">明天</button><button type="button" class="pill">3天後</button><button type="button" class="pill active">7天後</button><button type="button" class="pill">30天後</button><button type="button" class="pill">不需追蹤</button></div><div class="field"><label>備註（選填）</label><textarea id="note" enterkeyhint="done" autocomplete="off" autocapitalize="sentences" placeholder="例如：屋主明年可能換屋，約下週再聯繫"></textarea></div></section>
+<button class="primary" id="saveBtn" type="submit">＋ 儲存這一戶</button>
+</form>
+<div class="actions" style="margin:10px 0 12px"><button class="secondary" id="clearForm" type="button">重設本次選擇</button><button class="secondary" id="cancelEdit" type="button" style="display:none">取消編輯</button></div>
+<section class="panel"><div class="section-top"><h2>區域開發統計</h2><span class="counter">依目前紀錄即時統計</span></div><div id="regionStats" class="region-grid"></div></section>
+<section class="panel"><div class="section-top"><h2>開發紀錄</h2><span class="counter" id="recordCount">0 筆</span></div><div class="toolbar"><input id="search" placeholder="搜尋地址、區域、備註"><select id="filterResult"><option value="">全部開發結果</option><option>有出售意願</option><option>有出租需求</option><option>未來可能出售</option><option>已委託</option><option>目前無需求</option><option>未接觸成功</option><option>拒絕接觸</option></select></div><div id="records" style="margin-top:8px"></div></section>
+
+<section class="panel"><details id="syncDetails"><summary>☁️ Google Sheet 同步設定</summary>
+<div class="field"><label>Apps Script 網頁應用程式網址（以 /exec 結尾）</label><input id="cfgUrl" type="text" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec"></div>
+<div class="field"><label>密碼 token（要和 Code.gs 裡設定的一模一樣）</label><input id="cfgToken" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="你自訂的密碼"></div>
+<div class="actions" style="margin-top:12px"><button class="secondary" id="cfgSave" type="button">儲存並測試連線</button><button class="secondary danger" id="cfgClear" type="button">清除設定</button></div>
+<div id="syncMsg" class="msg"></div>
+<p class="notice">網址與密碼只存在這支手機，不會放進網頁程式碼。清除設定只會停止同步，不會刪除手機或試算表裡的紀錄。</p>
+</details></section>
+
+<section class="panel"><h2>資料匯出與備份</h2><div class="actions"><button class="secondary" id="exportCsv" type="button">匯出 CSV（Excel）</button><button class="secondary" id="backupJson" type="button">完整備份 JSON</button><button class="secondary" id="restoreJson" type="button">還原 JSON 備份</button><button class="secondary" id="importCsv" type="button">匯入舊版 CSV</button></div><input id="fileInput" type="file" accept=".json,.csv,application/json,text/csv" class="hidden"><p class="notice">Google Sheet 是主要備份；JSON 備份可當額外保險。從 2.3 搬資料：在舊版按「完整備份 JSON」，再到這裡「還原 JSON 備份」，匯入的紀錄會自動上傳到試算表。</p></section>
+<p class="notice">資料先保存在這支手機的瀏覽器空間，有網路時再同步到你的 Google Sheet。若清除 Safari 網站資料或換手機，可在設定好同步後按「立即同步」把試算表的紀錄拉回來。記錄電話或 LINE 等個資前，請先取得對方同意。</p>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),
+  KEY='ajia_area_development_v1', DRAFT_KEY='ajia_area_development_draft_v1',
+  CFG_KEY='ajia_sync_cfg_v1', TIP_KEY='ajia_tip_closed_v1';
+const AREAS=['麻魚寮','縣府特區','高鐵特區','新港市區','朴子市區','水上','民雄','嘉義市','其他'];
+const defaults={area:'麻魚寮',kind:'透天',method:'陌生拜訪',result:'未接觸成功',follow:'7天後'};
+let selected={...defaults}, editingId=null, data=[];
+let cfg={url:'',token:'',lastSync:'',lastError:''}, syncing=false, syncTimer=null;
+
+/* ---------- 草稿（地址、備註先暫存） ---------- */
+try{
+  const draft=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');
+  if(draft){$('address').value=draft.address||'';$('note').value=draft.note||''}
+}catch(e){}
+function saveDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify({address:$('address').value,note:$('note').value,savedAt:new Date().toISOString()}))}catch(e){}}
+$('address').addEventListener('input',saveDraft);
+$('note').addEventListener('input',saveDraft);
+$('address').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault()}});
+
+/* ---------- 資料 ---------- */
+try{const raw=localStorage.getItem(KEY);const parsed=raw?JSON.parse(raw):[];data=Array.isArray(parsed)?parsed.map(normalize):[]}catch(e){alert('讀取本機舊資料時發生問題。請先不要清除瀏覽器資料，並嘗試重新開啟。');}
+try{const c=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(c&&typeof c==='object')cfg={...cfg,...c}}catch(e){}
+
+function normalize(x){
+  const now=new Date().toISOString();
+  return {id:x.id||uid(),date:x.date||today(),area:x.area||'',kind:x.kind||'',address:x.address||'',method:x.method||'',result:x.result||'',follow:x.follow||'',note:x.note||'',
+    createdAt:x.createdAt||now,updatedAt:x.updatedAt||x.createdAt||now,
+    dirty:x.dirty===undefined?true:!!x.dirty, deleted:!!x.deleted};
+}
+function uid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function live(){return data.filter(x=>!x.deleted)}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(data));return true}catch(e){alert('手機儲存空間可能不足，請先匯出備份。');return false}}
+function save(){if(persist()){render();scheduleSync()}}
+function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg))}catch(e){}}
+function sortData(){data.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)))}
+
+/* ---------- 選項 ---------- */
+function setPills(){document.querySelectorAll('.pills[data-name]').forEach(g=>g.querySelectorAll('.pill').forEach(b=>{const active=b.textContent.trim()===selected[g.dataset.name];b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))}))}
+document.querySelectorAll('.pills[data-name]').forEach(g=>{g.querySelectorAll('.pill').forEach(b=>{b.setAttribute('aria-pressed',String(b.classList.contains('active')));b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();selected[g.dataset.name]=b.textContent.trim();g.querySelectorAll('.pill').forEach(x=>{const active=x===b;x.classList.toggle('active',active);x.setAttribute('aria-pressed',String(active))})},{passive:false})})});
+
+/* ---------- 畫面 ---------- */
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmtTime(iso){try{return new Date(iso).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}catch(e){return iso}}
+function render(){
+  updateSyncUI();
+  const L=live(),t=today();
+  $('todayCount').textContent=L.filter(x=>x.date===t).length;
+  $('leadCount').textContent=L.filter(x=>['有出售意願','有出租需求','未來可能出售','已委託'].includes(x.result)).length;
+  $('allCount').textContent=L.length;
+  const max=Math.max(1,...AREAS.map(a=>L.filter(x=>x.area===a).length));
+  $('regionStats').innerHTML=AREAS.map(a=>{const n=L.filter(x=>x.area===a).length;return `<div><span>${esc(a)}</span><div class="bar"><i style="width:${n/max*100}%"></i></div></div><div style="text-align:right;font-weight:700">${n}</div>`}).join('');
+  const q=$('search').value.trim().toLowerCase(),f=$('filterResult').value;
+  const filtered=L.filter(x=>(!f||x.result===f)&&(!q||[x.area,x.kind,x.address,x.method,x.result,x.follow,x.note,x.date].join(' ').toLowerCase().includes(q)));
+  $('recordCount').textContent=`顯示 ${filtered.length} / ${L.length} 筆`;
+  const host=$('records');host.innerHTML='';
+  if(!filtered.length){host.innerHTML='<div class="empty">沒有符合的紀錄。</div>';return}
+  const showSync=cfgReady();
+  filtered.forEach(x=>{
+    const d=document.createElement('div');d.className='record';
+    const head=document.createElement('div');head.className='record-head';
+    const title=document.createElement('strong');title.textContent=`${x.area}・${x.kind}${x.address?'｜'+x.address:''}`;
+    const tag=document.createElement('span');tag.className='tag';tag.textContent=x.result;
+    head.append(title,tag);
+    const small=document.createElement('small');
+    small.textContent=`${x.date}｜${x.method}｜追蹤：${x.follow}${showSync?(x.dirty?'｜⏳待同步':'｜☁️已同步'):''}${x.note?'\n備註：'+x.note:''}`;
+    const actions=document.createElement('div');actions.className='record-actions';
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='編輯';edit.onclick=()=>editRecord(x.id);
+    const del=document.createElement('button');del.type='button';del.className='secondary danger';del.textContent='刪除';del.onclick=()=>showDeleteConfirm(x.id);
+    actions.append(edit,del);d.append(head,small,actions);host.appendChild(d);
+  });
+}
+function showDeleteConfirm(id){
+  const old=document.getElementById('deleteOverlay');
+  if(old)old.remove();
+  const overlay=document.createElement('div');
+  overlay.id='deleteOverlay';
+  overlay.className='delete-overlay';
+  overlay.innerHTML='<div class="delete-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteTitle"><h3 id="deleteTitle">確定刪除這筆紀錄？</h3><p>刪除後會從手機移除，並在同步時一併從 Google Sheet 刪除。</p><div class="delete-dialog-actions"><button type="button" class="delete-cancel">取消</button><button type="button" class="delete-confirm">確定刪除</button></div></div>';
+  document.body.appendChild(overlay);
+  overlay.querySelector('.delete-cancel').addEventListener('click',()=>overlay.remove());
+  overlay.querySelector('.delete-confirm').addEventListener('click',()=>{
+    const r=data.find(y=>y.id===id);
+    if(r){r.deleted=true;r.dirty=true;r.updatedAt=new Date().toISOString()}
+    if(editingId===id)resetForm();
+    save();
+    overlay.remove();
+  });
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+}
+function resetForm(){editingId=null;selected={...defaults};$('address').value='';$('note').value='';try{localStorage.removeItem(DRAFT_KEY)}catch(e){}$('saveBtn').textContent='＋ 儲存這一戶';$('cancelEdit').style.display='none';setPills()}
+function editRecord(id){const x=data.find(y=>y.id===id&&!y.deleted);if(!x)return;editingId=id;selected={area:x.area,kind:x.kind,method:x.method,result:x.result,follow:x.follow};$('address').value=x.address;$('note').value=x.note;$('saveBtn').textContent='儲存修改';$('cancelEdit').style.display='block';setPills();window.scrollTo({top:0,behavior:'smooth'})}
+$('entryForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const old=editingId?data.find(x=>x.id===editingId):null,now=new Date().toISOString();
+  const entry={id:old?old.id:uid(),date:old?.date||today(),...selected,address:$('address').value.trim(),note:$('note').value.trim(),createdAt:old?.createdAt||now,updatedAt:now,dirty:true,deleted:false};
+  if(old){data=data.map(x=>x.id===old.id?entry:x)}else data.unshift(entry);
+  save();resetForm();window.scrollTo({top:0,behavior:'smooth'});
+});
+$('clearForm').onclick=resetForm;$('cancelEdit').onclick=resetForm;$('search').addEventListener('input',render);$('filterResult').addEventListener('change',render);
+
+/* ---------- Google Sheet 同步 ---------- */
+function cfgReady(){return /^https:\/\/script\.google\.com\/.+\/exec$/.test(cfg.url||'')&&!!cfg.token}
+function errMsg(err){
+  if(err&&err.name==='AbortError')return '連線逾時，請稍後再試';
+  if(err instanceof TypeError)return '無法連線（網路不穩，或網址不正確）';
+  return (err&&err.message)||'未知錯誤';
+}
+async function api(payload){
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),30000);
+  try{
+    // 不指定 Content-Type（預設 text/plain），可避開跨網域預檢，Apps Script 才收得到
+    const res=await fetch(cfg.url,{method:'POST',body:JSON.stringify({token:cfg.token,...payload}),signal:ctrl.signal,redirect:'follow'});
+    const text=await res.text();let j;
+    try{j=JSON.parse(text)}catch(e){throw Error('伺服器回應格式不正確：請確認網址以 /exec 結尾，且部署權限是「所有人」')}
+    if(!j.ok)throw Error(j.error==='unauthorized'?'密碼 token 不正確':(j.error||'伺服器錯誤'));
+    return j;
+  }finally{clearTimeout(timer)}
+}
+function toServer(x){return {id:x.id,date:x.date,area:x.area,kind:x.kind,address:x.address,method:x.method,result:x.result,follow:x.follow,note:x.note,createdAt:x.createdAt,updatedAt:x.updatedAt,deleted:x.deleted}}
+function mergeRemote(remote){
+  const byId=new Map(data.map(x=>[x.id,x]));let added=0,updated=0;
+  remote.forEach(r0=>{
+    if(!r0||!r0.id)return;
+    const r=normalize({...r0,dirty:false,deleted:false}),cur=byId.get(r.id);
+    if(!cur){data.push(r);byId.set(r.id,r);added++}
+    else if(!cur.dirty&&!cur.deleted&&String(r.updatedAt)>String(cur.updatedAt)){Object.assign(cur,r);updated++}
+  });
+  if(added||updated)sortData();
+  return {added,updated};
+}
+async function doSync(manual){
+  if(syncing)return;
+  if(!cfgReady()){if(manual){setMsg('請先填入網址與密碼，再按「儲存並測試連線」。','bad');$('syncDetails').open=true;$('syncDetails').scrollIntoView({behavior:'smooth'})}updateSyncUI();return}
+  if(!navigator.onLine){updateSyncUI();return}
+  syncing=true;updateSyncUI();
+  let ok=false;
+  try{
+    // 1) 上傳：把「待同步」的紀錄（含刪除）送上去
+    for(let guard=0;guard<60;guard++){
+      const batch=data.filter(x=>x.dirty).slice(0,40);
+      if(!batch.length)break;
+      const sent=batch.map(x=>({...x}));
+      await api({action:'sync',records:sent.map(toServer)});
+      sent.forEach(s=>{
+        const cur=data.find(x=>x.id===s.id);
+        if(cur&&cur.updatedAt===s.updatedAt){ if(cur.deleted)data=data.filter(x=>x!==cur); else cur.dirty=false }
+      });
+      persist();
+    }
+    // 2) 下載：試算表有、手機沒有的紀錄補回來（只新增／更新，不會因試算表缺列而刪手機資料）
+    const r=await api({action:'list'});
+    mergeRemote(r.records||[]);
+    cfg.lastSync=new Date().toISOString();cfg.lastError='';
+    persist();ok=true;
+  }catch(err){cfg.lastError=errMsg(err)}
+  finally{syncing=false;saveCfg();render()}
+  if(ok&&data.some(x=>x.dirty))scheduleSync();
+}
+function scheduleSync(){
+  updateSyncUI();
+  if(!cfgReady()||!navigator.onLine)return;
+  clearTimeout(syncTimer);syncTimer=setTimeout(()=>doSync(false),1500);
+}
+function updateSyncUI(){
+  const n=data.filter(x=>x.dirty).length;let cls,text,sub='';
+  if(syncing){cls='warn';text='🔄 同步中…'}
+  else if(!cfgReady()){cls='warn';text='☁️ 尚未設定同步';sub='資料目前只存在這支手機。請展開最下方「同步設定」。'}
+  else if(cfg.lastError){cls='bad';text='⚠️ 同步失敗';sub=cfg.lastError+(n?`（${n} 筆待上傳，資料仍安全存在手機）`:'')}
+  else if(!navigator.onLine){cls='warn';text='📵 目前離線';sub=n?`${n} 筆待同步，連線後會自動上傳`:'已全部同步，離線也可以繼續記錄'}
+  else if(n){cls='warn';text=`⏳ ${n} 筆待同步`;sub='稍候會自動上傳，也可按「立即同步」'}
+  else{cls='ok';text='✅ 已全部同步';sub=cfg.lastSync?'上次同步 '+fmtTime(cfg.lastSync):''}
+  $('syncBox').className='panel sync '+cls;
+  $('syncTitle').textContent=text;$('syncSub').textContent=sub;$('syncSub').style.display=sub?'block':'none';
+  $('syncBtn').disabled=syncing;
+}
+function setMsg(t,cls){const m=$('syncMsg');m.textContent=t;m.className='msg'+(cls?' '+cls:'')}
+$('syncBtn').onclick=()=>doSync(true);
+$('cfgUrl').value=cfg.url||'';$('cfgToken').value=cfg.token||'';
+$('cfgSave').onclick=async()=>{
+  const url=$('cfgUrl').value.trim(),token=$('cfgToken').value.trim();
+  if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(url)){setMsg('網址格式不正確：應該是 https://script.google.com/macros/s/…/exec','bad');return}
+  if(!token){setMsg('請輸入密碼 token','bad');return}
+  cfg.url=url;cfg.token=token;cfg.lastError='';saveCfg();
+  if(!navigator.onLine){setMsg('目前沒有網路，設定已儲存，連線後會自動同步。');render();return}
+  setMsg('連線測試中…');
+  try{
+    const j=await api({action:'ping'});
+    setMsg(`連線成功！試算表目前有 ${j.count} 筆紀錄。開始同步…`,'ok');
+    await doSync(true);
+    setMsg(cfg.lastError?('同步失敗：'+cfg.lastError):'完成首次同步。之後會自動同步，不用再設定。',cfg.lastError?'bad':'ok');
+  }catch(err){cfg.lastError=errMsg(err);saveCfg();setMsg('連線失敗：'+cfg.lastError,'bad');render()}
+};
+$('cfgClear').onclick=()=>{
+  cfg={url:'',token:'',lastSync:'',lastError:''};saveCfg();$('cfgUrl').value='';$('cfgToken').value='';
+  setMsg('已清除同步設定。手機與試算表裡的紀錄都還在。');render();
+};
+window.addEventListener('online',()=>{updateSyncUI();doSync(false)});
+window.addEventListener('offline',updateSyncUI);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')doSync(false)});
+
+/* ---------- 匯出／備份／匯入 ---------- */
+function download(name,blob){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1200)}
+$('exportCsv').onclick=()=>{const L=live();if(!L.length){alert('目前沒有紀錄可匯出');return}const cols=['date','area','kind','address','method','result','follow','note'];const rows=[['日期','區域','物件類型','地址','接觸方式','開發結果','追蹤時間','備註'],...L.map(x=>cols.map(k=>x[k]||''))];const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');download('阿嘉區域開發紀錄.csv',new Blob([csv],{type:'text/csv;charset=utf-8'}))};
+$('backupJson').onclick=()=>{const L=live();if(!L.length&&!confirm('目前沒有紀錄，仍要備份空資料嗎？'))return;const records=L.map(({dirty,deleted,...rest})=>rest);download('阿嘉開發紀錄備份_'+today()+'.json',new Blob([JSON.stringify({app:'阿嘉區域開發打卡',version:3,exportedAt:new Date().toISOString(),records},null,2)],{type:'application/json'}))};
+let importMode='json';
+$('restoreJson').onclick=()=>{importMode='json';$('fileInput').accept='.json,application/json';$('fileInput').click()};
+$('importCsv').onclick=()=>{importMode='csv';$('fileInput').accept='.csv,text/csv';$('fileInput').click()};
+function parseCSV(text){const rows=[];let row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&quoted&&n==='"'){cell+='"';i++}else if(c==='"'){quoted=!quoted}else if(c===','&&!quoted){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(v=>v!==''))rows.push(row);row=[];cell=''}else cell+=c}row.push(cell);if(row.some(v=>v!==''))rows.push(row);return rows}
+$('fileInput').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;
+  try{
+    const txt=await file.text();let incoming=[];
+    if(importMode==='json'){
+      const obj=JSON.parse(txt);incoming=Array.isArray(obj)?obj:(obj.records||[]);
+      if(!Array.isArray(incoming))throw Error('JSON 格式不正確');
+    }else{
+      const rows=parseCSV(txt.replace(/^\ufeff/,''));if(rows.length<2)throw Error('CSV 沒有資料列');
+      const h=rows[0].map(x=>x.trim());
+      const aliases={date:['日期','date'],area:['區域','area'],kind:['物件類型','kind'],address:['地址','地址／社區','路段／社區','address'],method:['接觸方式','method'],result:['開發結果','result'],follow:['追蹤時間','下次追蹤時間','follow'],note:['備註','note']};
+      const idx={};for(const k in aliases)idx[k]=h.findIndex(v=>aliases[k].includes(v));
+      incoming=rows.slice(1).map(r=>{const o={};for(const k in idx)o[k]=idx[k]>=0?(r[idx[k]]||''):'';return o});
+    }
+    const sigOf=x=>[x.date,x.area,x.kind,x.address,x.method,x.result,x.follow,x.note].join('|');
+    const knownIds=new Set(data.map(x=>x.id)),known=new Set(live().map(sigOf));let added=0;
+    incoming.filter(x=>x&&!x.deleted).map(x=>normalize({...x,dirty:true,deleted:false})).forEach(x=>{
+      if(knownIds.has(x.id)||known.has(sigOf(x)))return;
+      data.push(x);knownIds.add(x.id);known.add(sigOf(x));added++;
+    });
+    if(added)sortData();
+    save();
+    alert(`匯入完成！新增 ${added} 筆，略過重複 ${incoming.length-added} 筆。`+(cfgReady()?'\n新增的紀錄會自動同步到 Google Sheet。':''));
+  }catch(err){alert('匯入失敗：'+err.message)}
+  finally{$('fileInput').value=''}
+};
+
+/* ---------- 加入主畫面提示、離線快取 ---------- */
+const standalone=window.navigator.standalone===true||(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches);
+try{if(!standalone&&!localStorage.getItem(TIP_KEY))$('installTip').classList.remove('hidden')}catch(e){}
+$('closeTip').onclick=()=>{$('installTip').classList.add('hidden');try{localStorage.setItem(TIP_KEY,'1')}catch(e){}};
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})})}
+
+render();
+setTimeout(()=>doSync(false),600);
+})();
+</script></body></html>
